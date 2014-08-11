@@ -3,7 +3,7 @@ Rack-o Bot
 
 Rack-o game bot
 
-.. code::python
+.. code:: python
 
 	import racko
 	game = racko.game.Dealer(60, [racko.bot.Player("Sue"), racko.bot.Player("Roxanne")])
