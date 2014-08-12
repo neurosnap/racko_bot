@@ -18,9 +18,26 @@ class Player(object):
     def hand(self, cards):
         self.hand = cards
 
-    def my_turn(self, top_card):
+    def my_turn(self, game):
         print("my turn!")
         print("Check Racko: %s" % self.check_racko())
+        low, high = self.get_hand_avg()
+        print("Low Card Avg: %s" % low)
+        print("High Card Avg: %s" % high)
+        if low < 30:
+            if game.top_card() < 30:
+                pass
+            else:
+                draw = game.draw_card()
+                if draw < 30:
+                    self.take_card(game, draw)
+
+        game.top_card()
+        game.draw_card()
+
+    def take_card(self, game, card):
+        found_card = game.deck.index(card)
+
 
     def check_racko(self):
         points = 0
@@ -31,3 +48,11 @@ class Player(object):
                     points += 1
                     continue
         return points
+
+    def get_variance_avg(self):
+        pass
+
+    def get_hand_avg(self):
+        low = reduce(lambda x, y: x + y, self.hand[0:4]) / 5
+        high = reduce(lambda x, y: x + y, self.hand[5:9]) / 5
+        return low, high

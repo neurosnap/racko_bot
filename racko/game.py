@@ -25,6 +25,10 @@ class Dealer(object):
         print("Card drawn: %s" % card)
         return card
 
+    def give_card(self, card):
+        if card in self.deck:
+            del self.card[self.deck.index(card)]
+
     def discard(self, deck, card):
         if len(deck) > 0:
             discard = deck.pop(deck.index(card))
@@ -57,4 +61,4 @@ class Dealer(object):
             self.current_player = self.players[0]
 
         print("It is %s turn" % self.current_player)
-        self.current_player.my_turn(self.top_card())
+        self.current_player.my_turn(self)
