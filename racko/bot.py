@@ -7,10 +7,7 @@ class Player(object):
         self.name = name
 
     def __eq__(self, other):
-        if self.name == other.name:
-            return True
-        else:
-            return False
+        return self.name == other.name
 
     def __str__(self):
         return "<Player %s>" % self.name
@@ -18,41 +15,101 @@ class Player(object):
     def hand(self, cards):
         self.hand = cards
 
-    def my_turn(self, game):
-        print("my turn!")
-        print("Check Racko: %s" % self.check_racko())
+    def my_turn(self, dealer):
+        print(self.hand)
         low, high = self.get_hand_avg()
-        print("Low Card Avg: %s" % low)
-        print("High Card Avg: %s" % high)
-        if low < 30:
-            if game.top_card() < 30:
-                pass
+        #print("Low Card Avg: %s" % low)
+        #print("High Card Avg: %s" % high)
+
+        take_discard = False
+        top_discard = dealer.top_discard()
+        take_discard = self.find_place(self.hand, top_discard)
+
+        if take_discard:
+            self.exchange_discard(dealer, take_discard, top_discard)
+        else:
+            take_drawn_card = False
+            drawn_card = dealer.draw_card()
+            take_drawn_card = self.find_place(self.hand, drawn_card)
+
+            if take_drawn_card:
+                self.exchange_card(dealer, take_drawn_card, drawn_card)
             else:
-                draw = game.draw_card()
-                if draw < 30:
-                    self.take_card(game, draw)
+                dealer.discard(dealer.deck, drawn_card)
 
-        game.top_card()
-        game.draw_card()
+        print(self.hand)
+        print("--------\n")
+        if self.call_racko():
+            print("RACKO!")
+        else:
+            dealer.next_turn()
 
-    def take_card(self, game, card):
-        found_card = game.deck.index(card)
+    def find_place(self, arr, new_card):
+        for index, card in enumerate(arr):
 
+            if index in [0,1,2,3,4] and is_asc_order(arr[0:5]):
+                continue
 
-    def check_racko(self):
-        points = 0
-        for index, card in enumerate(self.hand):
-            next_i = index + 1
-            if (next_i < len(self.hand)
-                and card < self.hand[next_i]):
-                    points += 1
-                    continue
-        return points
+            if index in [5,6,7,8,9] and is_asc_order(arr[5:10]):
+                continue
 
-    def get_variance_avg(self):
-        pass
+            if new_card < card:
+                if index != 0 and index != 9:
+                    if (abs(new_card - arr[index - 1]) <= 5
+                        or abs(new_card - arr[index + 1] >= 10)):
+                            print("new card < card")
+                            return card
+                else:
+                    print("index == 0 and new card < card")
+                    return card
+            elif index == 9 and arr[8] < new_card:
+                print("index 9 and arr[8] < new card")
+                return card
+            elif index == 9 and new_card > self.hand[9]:
+                print("new card > hand[9]")
+                return card
+            #elif index == 4 and new_card < self.hand[5]:
+            #    print("new card < hand[5]")
+            #    return card
+            elif index > 4 and index < 9 and card <= 30 and new_card < arr[index+1]:
+                print("Index > 4 and card <= 30")
+                return card
+            elif index in [1,2,3,4] and card <= 5 and new_card <= 30 and arr[0] > 5:
+                print("Index 1-4 and card <= 5")
+                return card
+            elif index in [5,6,7] and card >= 48 and new_card >= 30 and new_card <= 48:
+                print("Index 5-8 and card >= 48")
+                return card
+
+        return False
+
+    def exchange_discard(self, dealer, old_card, new_card):
+        if old_card in self.hand:
+            dealer.give_discard(new_card)
+            replace_index = self.hand.index(old_card)
+            self.hand[replace_index] = new_card
+            dealer.discard_deck.append(old_card)
+            print("Exchanged %s card from discard deck for %s" % (old_card, new_card))
+        else:
+            raise Exception("Old card %s not found in hand" % old_card)
+
+    def exchange_card(self, dealer, old_card, new_card):
+        if old_card in self.hand:
+            dealer.give_card(new_card)
+            replace_index = self.hand.index(old_card)
+            self.hand[replace_index] = new_card
+            dealer.discard_deck.append(old_card)
+            print("Exchanged %s card from deck for %s" % (old_card, new_card))
+        else:
+            raise Exception("Old card %s not found in hand" % old_card)
+
+    def call_racko(self):
+        return self.hand == sorted(self.hand)
 
     def get_hand_avg(self):
-        low = reduce(lambda x, y: x + y, self.hand[0:4]) / 5
-        high = reduce(lambda x, y: x + y, self.hand[5:9]) / 5
+        low = reduce(lambda x, y: x + y, self.hand[0:5]) / 5
+        high = reduce(lambda x, y: x + y, self.hand[5:10]) / 5
         return low, high
+
+def is_asc_order(arr):
+    return arr == sorted(arr)
