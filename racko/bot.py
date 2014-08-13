@@ -52,6 +52,9 @@ class Player(object):
         if arr[9] < 45 and new_card > 45:
             return arr[9]
 
+        if is_asc_order(arr[0:5]) and new_card > arr[4] and new_card <= 30:
+            return arr[5]
+
         if new_card >= 30 and not is_asc_order(arr[5:10]):
             for index, card in enumerate(arr[5:10]):
                 """if index != 0 and index != 4:
@@ -65,7 +68,7 @@ class Player(object):
                     if index in [0,1,2,3]:
                         print("new card %s < card" % new_card)
                         return card
-                elif index != 0 and card < 30 and new_card > arr[index - 1]:
+                elif card < 30 and new_card > arr[index - 1]:
                     print("card < 30")
                     return card
 
