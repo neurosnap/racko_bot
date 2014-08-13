@@ -45,41 +45,49 @@ class Player(object):
             dealer.next_turn()
 
     def find_place(self, arr, new_card):
-        for index, card in enumerate(arr):
 
-            if index in [0,1,2,3,4] and is_asc_order(arr[0:5]):
-                continue
+        if arr[0] > 15 and new_card < 15:
+            return arr[0]
 
-            if index in [5,6,7,8,9] and is_asc_order(arr[5:10]):
-                continue
+        if arr[9] < 45 and new_card > 45:
+            return arr[9]
 
-            if new_card < card:
-                if index != 0 and index != 9:
-                    if (abs(new_card - arr[index - 1]) <= 5
-                        or abs(new_card - arr[index + 1] >= 10)):
-                            print("new card < card")
-                            return card
-                else:
-                    print("index == 0 and new card < card")
+        if new_card >= 30 and not is_asc_order(arr[5:10]):
+            for index, card in enumerate(arr[5:10]):
+                """if index != 0 and index != 4:
+                    prev_card = arr[index - 1]
+                    next_card = arr[index + 1]
+                    delta_card = abs(next_card - prev_card)
+                    if delta_card <= 10:
+                        print("delta!")
+                        return next_card"""
+                if new_card < card:
+                    if index in [0,1,2,3]:
+                        print("new card %s < card" % new_card)
+                        return card
+                elif index != 0 and card < 30 and new_card > arr[index - 1]:
+                    print("card < 30")
                     return card
-            elif index == 9 and arr[8] < new_card:
-                print("index 9 and arr[8] < new card")
-                return card
-            elif index == 9 and new_card > self.hand[9]:
-                print("new card > hand[9]")
-                return card
-            #elif index == 4 and new_card < self.hand[5]:
-            #    print("new card < hand[5]")
-            #    return card
-            elif index > 4 and index < 9 and card <= 30 and new_card < arr[index+1]:
-                print("Index > 4 and card <= 30")
-                return card
-            elif index in [1,2,3,4] and card <= 5 and new_card <= 30 and arr[0] > 5:
-                print("Index 1-4 and card <= 5")
-                return card
-            elif index in [5,6,7] and card >= 48 and new_card >= 30 and new_card <= 48:
-                print("Index 5-8 and card >= 48")
-                return card
+
+        if new_card <= 30 and not is_asc_order(arr[0:5]):
+            for index, card in enumerate(arr[0:5]):
+                """if index != 0 and index != 4:
+                    prev_card = arr[index - 1]
+                    next_card = arr[index + 1]
+                    delta_card = abs(next_card - prev_card)
+                    if delta_card <= 10:
+                        print("delta!")
+                        return next_card"""
+                if new_card < card:
+                    if index in [1,2,3,4]:
+                        if abs(new_card - arr[index - 1]) <= 5 and new_card > arr[index - 1]:
+                            print("new card %s < card" % new_card)
+                            return card
+                    else:
+                        return card
+                elif index in [1,2,3,4] and card <= 5 and arr[0] > 5:
+                    print("Index 1-4 and card <= 5")
+                    return card
 
         return False
 
